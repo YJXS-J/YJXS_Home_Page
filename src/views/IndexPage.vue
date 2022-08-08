@@ -115,6 +115,7 @@ export default {
             // 时间
             time: 'yyyy-mm-dd hh:mm:ss',
             LoadingPageShow: true,
+            screenWidth: document.documentElement.clientWidth, //屏幕宽度
         };
     },
     created() {
@@ -139,6 +140,16 @@ export default {
         setInterval(() => {
             this.getTime();
         }, 1000);
+        var that = this;
+        window.addEventListener('resize', function () {
+            that.screenWidth = document.body.offsetWidth;
+        });
+    },
+    watch: {
+        screenWidth: function () {
+            // 窗口变化直接刷新页面
+            window.location.reload();
+        },
     },
     methods: {
         imgArr(imagesItem) {
@@ -153,6 +164,7 @@ export default {
             this.showIndex = Math.floor(Math.random() * (this.indexPngArr.length - 1));
             var mainCard = document.querySelector('.mainCard');
             var mainPng = document.querySelector('.mainPng');
+            var playBtn = document.querySelector('.playBtn');
             //  延迟加载
             setTimeout(() => {
                 mainPng.style.bottom = '50%';
@@ -163,7 +175,7 @@ export default {
                 // 允许滑动
                 setTimeout(() => {
                     this.DOMCSS.slide = true;
-                }, 2000);
+                }, 3000);
                 setTimeout(() => {
                     mainCard.style.bottom = '0';
                     this.DOMCSS.transform = 'scale(0.8)';
@@ -175,6 +187,13 @@ export default {
                         this.DOMCSS.right = '16px';
                         setTimeout(() => {
                             this.DOMCSS.opacity = 1;
+                            playBtn.style.left = mainCard.offsetWidth - playBtn.offsetWidth - 16 + 'px';
+
+                            setTimeout(() => {
+                                this.DOMCSS.opacity = 1;
+                                playBtn.style.left = 'auto';
+                                playBtn.style.right = '16px';
+                            }, 1000);
                         }, 500);
                     }, 1000);
                     // 倒for循环
@@ -184,7 +203,7 @@ export default {
                         }, 1000 + (1000 / 30) * (this.linkSrcArr.length - i));
                     }
                 }, 1000);
-            }, 500);
+            }, 100);
         },
         // 定时器
         timerFun() {
@@ -366,8 +385,10 @@ export default {
     height: 30px;
     position: absolute;
     right: 16px;
+    left: -100%;
     top: 16px;
     z-index: 999;
+    transition: all 1s;
 }
 
 .playBtnImg {

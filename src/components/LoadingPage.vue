@@ -75,11 +75,11 @@ export default {
                 // 延迟执行
                 setTimeout(() => {
                     successImg.style.transform = 'scale(1)';
-                    setTimeout(() => {
-                        loader.style.left = '-100%';
-                        loading_box.style.left = '-100%';
-                    }, 100);
-                }, 1);
+                }, 100);
+                setTimeout(() => {
+                    loader.style.left = '-100%';
+                    loading_box.style.left = '-100%';
+                }, 1000);
 
                 this.percent = '数据加载完毕！';
                 this.imgSrcArr = JSON.stringify(this.imgSrcArr);
@@ -91,10 +91,10 @@ export default {
                 //         imgSrcArr: JSON.stringify(this.imgSrcArr),
                 //     },
                 // });
-                // 延迟一秒执行
+                // 延迟执行
                 setTimeout(() => {
                     this.$emit('imgArr', this.imgSrcArr);
-                }, 1000);
+                }, 2000);
             }
         },
     },
