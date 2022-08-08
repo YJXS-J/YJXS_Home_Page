@@ -157,6 +157,7 @@ body {
     position: absolute;
     top: 16px;
     left: -100%;
+    z-index: 1;
 }
 
 .projectItem {
