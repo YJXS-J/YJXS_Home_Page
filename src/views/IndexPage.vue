@@ -1,5 +1,6 @@
 <template>
     <div id="index" :style="{ backgroundImage: DOMCSS.bgc }">
+        <!-- 加载页面 -->
         <LoadingPage @imgArr="imgArr" v-show="LoadingPageShow" />
         <!-- <TopNav /> -->
         <div class="mainCard" v-show="!LoadingPageShow">
@@ -19,16 +20,19 @@
                     :style="{ right: item.right, top: item.top + 'px', opacity: DOMCSS.opacity }"
                     v-for="(item, index) of linkSrcArr"
                     :key="index"
-                    @click="goTo(item.src, item.target)"
+                    @click="goTo(item.src, item.target, item.txt)"
                 >
                     <img class="linkItemImg" :src="item.img" alt="" srcset="" />
                     <div class="linkItemTxt">{{ item.txt }}</div>
                 </div>
             </div>
             <!-- 时间 -->
-            <div class="time" :style="{ right: DOMCSS.right, opacity: DOMCSS.opacity }">
+            <div class="time" :style="{ right: DOMCSS.right, opacity: DOMCSS.opacity }" @click="comeBakc()">
                 <span class="timeItem">{{ time }}</span>
             </div>
+
+            <!-- 项目 -->
+            <ProjectPage v-show="projectState" />
         </div>
         <!-- 图片 -->
         <div class="mainPng" v-show="!LoadingPageShow">
@@ -50,11 +54,13 @@
 <script>
 // import TopNav from '../components/TopNavPage.vue';
 import LoadingPage from '@/components/LoadingPage';
+import ProjectPage from '@/components/ProjectPage';
 
 export default {
     components: {
         // TopNav,
         LoadingPage,
+        ProjectPage,
     },
     data() {
         return {
@@ -74,7 +80,7 @@ export default {
                 {
                     img: require('../static/images/object.png'),
                     txt: '项目',
-                    src: 'https://github.com/YJXS-J',
+                    src: '/project',
                     target: '_self',
                 },
                 {
@@ -116,6 +122,8 @@ export default {
             time: 'yyyy-mm-dd hh:mm:ss',
             LoadingPageShow: true,
             screenWidth: document.documentElement.clientWidth, //屏幕宽度
+            projectState: false,
+            itemActive: 'home',
         };
     },
     created() {
@@ -284,11 +292,22 @@ export default {
             }
         },
         // 链接跳转
-        goTo(src, target) {
+        goTo(src, target, name) {
             if (target == '_blank') {
                 window.open(src, target);
             } else {
-                this.$router.push(src);
+                this.DOMCSS.left = '-100%';
+                // 延迟执行
+                setTimeout(() => {
+                    if (name == '项目') {
+                        var project = document.querySelector('.project');
+                        this.projectState = true;
+                        setTimeout(() => {
+                            project.style.left = '16px';
+                            this.itemActive = name;
+                        }, 100);
+                    }
+                }, 100);
             }
         },
         getTime() {
@@ -304,6 +323,20 @@ export default {
             var week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
             var weekDay = week[date.getDay()];
             this.time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ' ' + weekDay;
+        },
+        comeBakc() {
+            console.log(this.itemActive);
+            if (this.itemActive == '项目') {
+                var project = document.querySelector('.project');
+                project.style.left = '-100%';
+                setTimeout(() => {
+                    this.projectState = false;
+                    setTimeout(() => {
+                        this.DOMCSS.left = '25%';
+                        this.itemActive = 'home';
+                    }, 100);
+                }, 100);
+            }
         },
     },
 };
@@ -361,7 +394,7 @@ export default {
 
 .mainPng {
     height: 100%;
-    width: 30%;
+    /* width: 30%; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -445,5 +478,6 @@ export default {
     font-family: fantasy, Monospace;
     letter-spacing: 3px;
     transition: all 0.5s;
+    cursor: pointer;
 }
 </style>

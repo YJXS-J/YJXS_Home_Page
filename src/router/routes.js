@@ -1,4 +1,5 @@
 import Index from '@/views/IndexPage.vue';
+import Project from '@/components/ProjectPage.vue';
 
 const routes = [
     {
@@ -12,6 +13,12 @@ const routes = [
         path: '/index',
         component: Index,
         meta: { title: '首页' },
+    },
+    {
+        name: 'project',
+        path: '/project',
+        component: Project,
+        meta: { title: '项目' },
     },
 ];
 
