@@ -10,7 +10,7 @@
             >
                 <div class="projectItem">
                     <div class="toolbar">
-                        <div class="title">{{ item.title }}</div>
+                        <div class="title" :title="item.title">{{ item.title }}</div>
                         <div class="toolbarBox">
                             <div class="preview" title="预览"></div>
                             <div class="closure" title="关闭" @click="showState(item.show, index)"></div>
@@ -18,20 +18,20 @@
                     </div>
                     <div class="Introduction">
                         <div>
-                            <span class="smallTitle">类型：</span>
+                            <span class="smallTitle">技术栈：</span>
                             <span>{{ item.type }}</span>
                         </div>
                         <div>
-                            <span class="smallTitle">功能：</span>
-                            <span>时间选择器</span>
+                            <span class="smallTitle">类型：</span>
+                            <span>{{ item.functionTxt }}</span>
                         </div>
                         <div>
                             <span class="smallTitle">适用平台：</span>
                             <span>{{ item.platform }}</span>
                         </div>
-                        <div>
+                        <div class="introductionTxt">
                             <span class="smallTitle">简介：</span>
-                            <span>{{ item.introduction }}</span>
+                            <span :title="item.introduction">{{ item.introduction }}</span>
                         </div>
                     </div>
                 </div>
@@ -49,71 +49,69 @@ export default {
                 {
                     title: '时间选择器',
                     type: 'JavaScript',
+                    functionTxt: '时间日历选择器',
                     platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
+                    introduction: 'yyyy-mm-dd||hh:mm:ss,滚轮选择时间，日历选择',
                     show: true,
                     transform: 'scale(1)',
                     url: '',
                 },
                 {
-                    title: '时间选择器',
+                    title: '粤港澳大湾区气象监测预警预报中心',
+                    functionTxt: '官网',
                     type: 'JavaScript',
-                    platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
+                    platform: 'PC',
+                    introduction: '粤港澳大湾区气象监测预警预报中心官网介绍',
                     show: true,
                     transform: 'scale(1)',
                     url: '',
                 },
                 {
-                    title: '时间选择器',
+                    title: '天文日历',
                     type: 'JavaScript',
-                    platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
+                    functionTxt: '时间日历选择器',
+                    platform: 'Mobile',
+                    introduction: '移动版日历，日期推算，干支计算',
                     show: true,
                     transform: 'scale(1)',
                     url: '',
                 },
                 {
-                    title: '时间选择器',
-                    type: 'JavaScript',
+                    title: '抚州雷电预警',
+                    type: 'uni-app(Vue2)',
+                    functionTxt: '官网',
                     platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
+                    introduction: '抚州雷电预警信息查看，自适应设备',
                     show: true,
                     transform: 'scale(1)',
                     url: '',
                 },
                 {
-                    title: '时间选择器',
+                    title: '深圳市国家气候观象台数字服务平台',
                     type: 'JavaScript',
-                    platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
+                    functionTxt: '官网',
+                    platform: 'PC',
+                    introduction: '深圳市国家气候观象台数字服务平台数据查看，通过一个iframe标签来切换显示不同的页面',
                     show: true,
                     transform: 'scale(1)',
                     url: '',
                 },
                 {
-                    title: '时间选择器',
+                    title: '深圳市大鹏新区南澳街道南隆社区气象监测预警',
                     type: 'JavaScript',
-                    platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
+                    functionTxt: '官网',
+                    platform: 'PC',
+                    introduction: '深圳市大鹏新区南澳街道南隆社区气象监测预警信息查看，页面模块可全屏显示',
                     show: true,
                     transform: 'scale(1)',
                     url: '',
                 },
                 {
-                    title: '时间选择器',
-                    type: 'JavaScript',
-                    platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-                {
-                    title: '时间选择器',
-                    type: 'JavaScript',
-                    platform: 'PC & Mobile',
-                    introduction: '滚轮选择时间(yyyy-mm-dd||hh:mm:ss,日历选择)',
+                    title: '野行海钓',
+                    type: 'uni-app(Vue2)',
+                    functionTxt: '微信小程序',
+                    platform: 'Mobile',
+                    introduction: '自定义日历组件',
                     show: true,
                     transform: 'scale(1)',
                     url: '',
@@ -133,9 +131,15 @@ export default {
     },
     mounted() {
         //
+        var height3 = document.documentElement.clientHeight;
+        var projectBox = document.querySelector('.projectBox');
+        projectBox.style.height = height3 - 88 * 2 - 16 * 2 + 'px';
     },
     created() {
-        //
+        // 根据type值排序
+        this.projectArr.sort((a, b) => {
+            return a.type.localeCompare(b.type);
+        });
     },
 };
 </script>
@@ -162,7 +166,7 @@ body {
 
 .projectItem {
     width: 200px;
-    margin-bottom: 12px;
+    height: 98%;
 }
 
 .toolbar {
@@ -201,11 +205,15 @@ body {
     font-family: monospace;
     font-weight: bold;
     font-size: 16px;
+    width: 60%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .Introduction {
     width: 100%;
-    height: 180px;
+    height: 80%;
     padding: 12px;
     box-sizing: border-box;
     background-color: #ffffff;
@@ -217,6 +225,7 @@ body {
 .smallTitle {
     font-weight: bold;
 }
+
 .projectBox {
     width: 620px;
     height: 100%;
@@ -224,11 +233,43 @@ body {
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.projectBox::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 5px;
+    /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+}
+
+.projectBox::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #747474;
+}
+
+.projectBox::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background: #eaeaea;
 }
 
 .projectItemDiv {
     box-sizing: border-box;
     position: relative;
     transition: all 0.5s;
+    height: 33.33%;
+}
+
+.introductionTxt {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 </style>

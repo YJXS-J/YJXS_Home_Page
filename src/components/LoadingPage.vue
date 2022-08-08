@@ -116,10 +116,12 @@ body {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
 }
+
 html {
     font-family: 'Roboto', sans-serif;
 }
@@ -136,6 +138,7 @@ html {
     transition: all 1s;
     overflow: hidden;
 }
+
 .loader .loading_box {
     position: fixed;
     top: 50%;
@@ -154,6 +157,7 @@ html {
     align-items: center;
     transition: all 1s;
 }
+
 .loader .loading_box .symbol {
     text-align: center;
     display: flex;
@@ -161,6 +165,7 @@ html {
     justify-content: center;
     align-items: center;
 }
+
 .loader .loading_box .symbol p {
     font-size: 1.5em;
     font-weight: bold;
@@ -168,6 +173,7 @@ html {
     line-height: 1;
     /* margin: 30px 0; */
 }
+
 .loader .loading_box .symbol .symbolDiv {
     width: 50px;
     height: 50px;
@@ -182,22 +188,26 @@ html {
     animation-duration: 1s;
     animation-iteration-count: infinite;
 }
+
 .paused {
     animation-play-state: paused;
     display: none;
 }
+
 .success {
     width: 60px;
     height: 60px;
     margin: 30px 0;
     display: none;
 }
+
 .successImg {
     width: 100%;
     height: 100%;
     transform: scale(0);
     transition: all 1s;
 }
+
 .symbolDiv {
     margin: 30px;
 }

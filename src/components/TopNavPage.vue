@@ -60,6 +60,7 @@ export default {
     color: #fff;
     display: flex;
 }
+
 .topNavContent {
     width: 1200px;
     height: 100%;
@@ -68,18 +69,22 @@ export default {
     justify-content: space-between;
     align-items: center;
 }
+
 .logo {
     width: 50px;
     height: 50px;
 }
+
 .logoImg {
     width: 100%;
     height: 100%;
     cursor: pointer;
 }
+
 .navIBox {
     display: flex;
 }
+
 .navItem {
     height: 60px;
     line-height: 60px;
