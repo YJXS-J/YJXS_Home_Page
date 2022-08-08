@@ -1,7 +1,8 @@
 <template>
     <div id="index" :style="{ backgroundImage: DOMCSS.bgc }">
+        <LoadingPage @imgArr="imgArr" v-show="LoadingPageShow" />
         <!-- <TopNav /> -->
-        <div class="mainCard">
+        <div class="mainCard" v-show="!LoadingPageShow">
             <!-- 文字 -->
             <div class="text" :style="{ left: DOMCSS.left, opacity: DOMCSS.opacity }">
                 <span class="textItem">YJXS</span>
@@ -18,7 +19,7 @@
                     :style="{ right: item.right, top: item.top + 'px', opacity: DOMCSS.opacity }"
                     v-for="(item, index) of linkSrcArr"
                     :key="index"
-                    @click="goTo(item.src)"
+                    @click="goTo(item.src, item.target)"
                 >
                     <img class="linkItemImg" :src="item.img" alt="" srcset="" />
                     <div class="linkItemTxt">{{ item.txt }}</div>
@@ -30,13 +31,16 @@
             </div>
         </div>
         <!-- 图片 -->
-        <div class="mainPng">
+        <div class="mainPng" v-show="!LoadingPageShow">
             <img
+                v-for="(item, index) of indexPngArr"
+                :key="index"
+                :src="item"
+                v-show="index == showIndex"
                 @mousemove="moveEvent"
                 @mouseleave="mouseleave"
                 @click="imgToggle()"
                 class="indexPng"
-                :src="indexPngArr[showIndex]"
                 :style="{ transform: DOMCSS.transform, filter: DOMCSS.filter, opacity: DOMCSS.opacity2 }"
             />
         </div>
@@ -45,43 +49,39 @@
 
 <script>
 // import TopNav from '../components/TopNavPage.vue';
+import LoadingPage from '@/components/LoadingPage';
+
 export default {
     components: {
         // TopNav,
+        LoadingPage,
     },
     data() {
         return {
             indexPngArr: [
-                require('../assets/carousel0.png'),
-                require('../assets/carousel1.png'),
-                require('../assets/carousel2.png'),
-                require('../assets/carousel3.png'),
+                // require('../static/images/carousel0.png'),
+                // require('../static/images/carousel1.png'),
+                // require('../static/images/carousel2.png'),
+                // require('../static/images/carousel3.png'),
             ],
             linkSrcArr: [
                 {
-                    img: require('../assets/github.png'),
+                    img: require('../static/images/github.png'),
                     txt: 'GitHub',
                     src: 'https://github.com/YJXS-J',
+                    target: '_blank',
                 },
                 {
-                    img: require('../assets/github.png'),
-                    txt: 'GitHub2',
+                    img: require('../static/images/object.png'),
+                    txt: '项目',
                     src: 'https://github.com/YJXS-J',
+                    target: '_self',
                 },
                 {
-                    img: require('../assets/github.png'),
-                    txt: 'GitHub3',
+                    img: require('../static/images/question.png'),
+                    txt: '面试题',
                     src: 'https://github.com/YJXS-J',
-                },
-                {
-                    img: require('../assets/github.png'),
-                    txt: 'GitHub4',
-                    src: 'https://github.com/YJXS-J',
-                },
-                {
-                    img: require('../assets/github.png'),
-                    txt: 'GitHub5',
-                    src: 'https://github.com/YJXS-J',
+                    target: '_self',
                 },
             ],
             showIndex: Math.floor(Math.random() * 3),
@@ -103,7 +103,7 @@ export default {
                 // 是否可点击龙珠按钮
                 slide: false,
             },
-            playBtnImg: require('../assets/playBtn.png'),
+            playBtnImg: require('../static/images/playBtn.png'),
             playRotate: 0,
             transform2: 'rotate(0deg)',
             playState: true,
@@ -114,45 +114,26 @@ export default {
             timer3: null,
             // 时间
             time: 'yyyy-mm-dd hh:mm:ss',
+            LoadingPageShow: true,
         };
     },
     created() {
+        // 图片接收
+        // JSON.parse(this.$route.params.imgSrcArr).forEach(item => {
+        //     if (item.name.slice(0, -1) == 'carousel') {
+        //         this.indexPngArr.push(item.src);
+        //     }
+        // });
         this.timerFun();
         // 获取页面高度
         var height = (document.documentElement.clientHeight - 88 * 2) / 2;
         var height2 = this.linkSrcArr.length * 72;
-
-        console.log(height);
         for (let i = 0; i < this.linkSrcArr.length; i++) {
             this.linkSrcArr[i].right = '-50%';
             this.linkSrcArr[i].top = height - height2 + i * 72 + height2 / 2;
         }
     },
     mounted() {
-        // 文字移入
-        setTimeout(() => {
-            this.DOMCSS.opacity = 0.3;
-            this.DOMCSS.left = '25%';
-            this.DOMCSS.right2 = '16%';
-            this.DOMCSS.right = '16px';
-            setTimeout(() => {
-                this.DOMCSS.opacity = 1;
-            }, 500);
-        }, 1000 / 30);
-        // 倒for循环
-        for (let i = this.linkSrcArr.length - 1; i >= 0; i--) {
-            setTimeout(() => {
-                this.linkSrcArr[i].right = '16%';
-            }, (1000 / 30) * (this.linkSrcArr.length - i));
-        }
-        // 图片放大
-        setTimeout(() => {
-            this.DOMCSS.transform = 'scale(0.8)';
-        }, 100);
-        // 允许滑动
-        setTimeout(() => {
-            this.DOMCSS.slide = true;
-        }, 600);
         // 获取时间
         this.getTime();
         setInterval(() => {
@@ -160,6 +141,51 @@ export default {
         }, 1000);
     },
     methods: {
+        imgArr(imagesItem) {
+            this.LoadingPageShow = false;
+            var images = JSON.parse(imagesItem);
+            this.indexPngArr = [];
+            images.forEach(item => {
+                if (item.name.slice(0, -1) == 'carousel') {
+                    this.indexPngArr.push(item.src);
+                }
+            });
+            this.showIndex = Math.floor(Math.random() * (this.indexPngArr.length - 1));
+            var mainCard = document.querySelector('.mainCard');
+            var mainPng = document.querySelector('.mainPng');
+            //  延迟加载
+            setTimeout(() => {
+                mainPng.style.bottom = '50%';
+                // 图片放大
+                setTimeout(() => {
+                    this.DOMCSS.transform = 'scale(2)';
+                }, 100);
+                // 允许滑动
+                setTimeout(() => {
+                    this.DOMCSS.slide = true;
+                }, 2000);
+                setTimeout(() => {
+                    mainCard.style.bottom = '0';
+                    this.DOMCSS.transform = 'scale(0.8)';
+                    // 文字移入
+                    setTimeout(() => {
+                        this.DOMCSS.opacity = 0.3;
+                        this.DOMCSS.left = '25%';
+                        this.DOMCSS.right2 = '16%';
+                        this.DOMCSS.right = '16px';
+                        setTimeout(() => {
+                            this.DOMCSS.opacity = 1;
+                        }, 500);
+                    }, 1000);
+                    // 倒for循环
+                    for (let i = this.linkSrcArr.length - 1; i >= 0; i--) {
+                        setTimeout(() => {
+                            this.linkSrcArr[i].right = '16%';
+                        }, 1000 + (1000 / 30) * (this.linkSrcArr.length - i));
+                    }
+                }, 1000);
+            }, 500);
+        },
         // 定时器
         timerFun() {
             // 背景色滚动渐变
@@ -239,8 +265,12 @@ export default {
             }
         },
         // 链接跳转
-        goTo(src) {
-            window.open(src, '_blank');
+        goTo(src, target) {
+            if (target == '_blank') {
+                window.open(src, target);
+            } else {
+                this.$router.push(src);
+            }
         },
         getTime() {
             this.time = new Date().toLocaleString();
@@ -291,6 +321,8 @@ export default {
     background-image: linear-gradient(to right, #241558, #20267b, #172761);
     position: relative;
     overflow: hidden;
+    transition: all 1s;
+    bottom: -200%;
 }
 
 .text {
@@ -308,9 +340,6 @@ export default {
     transition: all 0.5s;
 }
 
-.textItem {
-}
-
 .mainPng {
     height: 100%;
     width: 30%;
@@ -319,11 +348,11 @@ export default {
     justify-content: center;
     position: absolute;
     left: 50%;
-    top: 50%;
+    bottom: -200%;
     padding: 88px;
     box-sizing: border-box;
-    transform: translate(-50%, -50%);
-    transition: all 0.1s;
+    transform: translate(-50%, 50%);
+    transition: all 1s;
 }
 
 .indexPng {
@@ -381,13 +410,12 @@ export default {
 .linkItemTxt {
     font-size: 28px;
     font-family: fantasy, Monospace;
-    font-style: italic;
     letter-spacing: 6px;
     line-height: 1;
 }
 
 .time {
-    width: 350px;
+    /* width: 350px; */
     position: absolute;
     bottom: 16px;
     /* right: 16px; */

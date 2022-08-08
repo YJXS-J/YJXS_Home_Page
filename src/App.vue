@@ -1,14 +1,17 @@
 <template>
-    <IndexPage />
+    <!-- <IndexPage /> -->
+    <router-view></router-view>
 </template>
 
 <script>
-import IndexPage from './views/IndexPage.vue';
+// import Loading from '@/components/LoadingPage';
+// import IndexPage from './views/IndexPage.vue';
 
 export default {
     name: 'App',
     components: {
-        IndexPage,
+        // IndexPage,
+        // Loading,
     },
 };
 </script>
