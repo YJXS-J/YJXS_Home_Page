@@ -22,7 +22,20 @@
                     <div class="languageBox">
                         <div class="languageItem" v-for="(item, index) of proportionArr" :key="index">
                             <div class="origin" :style="{ backgroundColor: item.color }"></div>
-                            {{ item.name }} {{ item.proportion }}%
+                            {{ item.name }} {{ item.proportion }}
+                        </div>
+                    </div>
+                </div>
+                <!-- 提交记录 -->
+                <div class="commit">
+                    <div class="commitTxt">CommitRecord</div>
+                    <div class="commitBox" @mouseenter="stopTimer4()" @mouseleave="continueTimer4()">
+                        <div class="scrollBox" :style="{ top: topScroll + 'px' }">
+                            <div class="commitItem" v-for="(item, index) of commitsArr" :key="index">
+                                <div class="commitName" :title="item.name">{{ item.name }}</div>
+                                <div class="commitmessage" :title="item.message">{{ item.message }}</div>
+                                <div class="commitTime" :title="item.date">{{ item.date }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -127,6 +140,7 @@ export default {
                 // 是否可点击龙珠按钮
                 slide: false,
             },
+            topScroll: 0,
             playBtnImg: require('../static/images/playBtn.png'),
             playRotate: 0,
             transform2: 'rotate(0deg)',
@@ -136,6 +150,7 @@ export default {
             timer1: null,
             timer2: null,
             timer3: null,
+            timer4: null,
             // 时间
             time: 'yyyy-mm-dd hh:mm:ss',
             LoadingPageShow: true,
@@ -143,6 +158,9 @@ export default {
             projectState: false,
             itemActive: 'home',
             proportionArr: [],
+            commitsArr: [],
+            isDown: true,
+            scrollTop: 0,
         };
     },
     created() {
@@ -169,7 +187,7 @@ export default {
             }
             return color;
         }
-        //    读取缓存，如果有则不再请求
+        // 读取缓存，如果有则不再请求（语言）
         if (localStorage.getItem('language')) {
             var res = JSON.parse(localStorage.getItem('language'));
             var values = Object.values(res);
@@ -185,7 +203,6 @@ export default {
                     color: colorFUN(key),
                     width: 'calc(' + ((res[key] / total) * 100).toFixed(2) + '% - 1px)',
                 });
-                console.log(this.proportionArr);
             }
         } else {
             axios({
@@ -239,8 +256,35 @@ export default {
                 }
             );
         }
+        // 读取缓存，如果有则不再请求（提交记录）
+        if (localStorage.getItem('commits')) {
+            // eslint-disable-next-line no-redeclare
+            var res = JSON.parse(localStorage.getItem('commits'));
+            for (let i = 0; i < res.length; i++) {
+                this.commitsArr.push(res[i].commit.committer);
+                this.commitsArr[i].message = res[i].commit.message;
+            }
+        } else {
+            axios({
+                url: 'https://api.github.com/repos/YJXS-J/YJXS_Home_Page/commits',
+                params: {},
+            }).then(
+                data => {
+                    var res = data.data;
+                    // 数据保存到本地缓存中
+                    localStorage.setItem('commits', JSON.stringify(res));
+                    // eslint-disable-next-line no-redeclare
+                    var res = res;
+                    for (let i = 0; i < res.length; i++) {
+                        this.commitsArr.push(res[i].commit.committer);
+                        this.commitsArr[i].message = res[i].commit.message;
+                    }
+                },
+                // eslint-disable-next-line no-unused-vars
+                err => {}
+            );
+        }
 
-        this.timerFun();
         // 获取页面高度
         var height = (document.documentElement.clientHeight - 88 * 2) / 2;
         var height2 = this.linkSrcArr.length * 72;
@@ -264,6 +308,24 @@ export default {
         screenWidth: function () {
             // 窗口变化直接刷新页面
             window.location.reload();
+        },
+        // 监听this.topScroll只执行一次
+        scrollTop: {
+            // eslint-disable-next-line no-unused-vars
+            handler: function (oldValue, newValue) {
+                if (newValue == 0) {
+                    var scrollBox = document.querySelector('.scrollBox');
+                    var commitItem = document.querySelectorAll('.commitItem');
+                    for (let i = 0; i < commitItem.length; i++) {
+                        commitItem[i].style.marginRight = 'calc(100%' + ' - ' + scrollBox.clientWidth + 'px)';
+                    }
+                    scrollBox.style.overflowY = 'auto';
+                    scrollBox.style.overflowX = 'hidden';
+                    document.querySelector('.scrollBox').addEventListener('scroll', this.scrool);
+                }
+            },
+            immediate: true,
+            deep: true,
         },
     },
     methods: {
@@ -294,10 +356,14 @@ export default {
                 setTimeout(() => {
                     mainCard.style.bottom = '0';
                     this.DOMCSS.transform = 'scale(0.8)';
+
+                    this.timerFun();
+                    var scrollBox = document.querySelector('.scrollBox');
+                    this.topScroll = scrollBox.clientHeight;
                     // 文字移入
                     setTimeout(() => {
                         this.DOMCSS.opacity = 0.3;
-                        this.DOMCSS.left = '25%';
+                        this.DOMCSS.left = '22%';
                         this.DOMCSS.right2 = '16%';
                         this.DOMCSS.right = '16px';
                         setTimeout(() => {
@@ -355,6 +421,34 @@ export default {
                 }
                 this.transform2 = 'rotate(' + this.playRotate + 'deg)';
             }, 1000 / 60);
+            // 文字滚动播放
+            this.timer4 = setInterval(() => {
+                var scrollBox = document.querySelector('.scrollBox');
+                if (this.topScroll == 0) {
+                    // 操控滚动条
+
+                    if (this.isDown) {
+                        //下降
+                        this.scrollTop++;
+                        scrollBox.scrollTop = this.scrollTop;
+                        //如果滚动条超过100的话，就往上
+                        //可以修改这个条件，作为折返的前提
+                        if (scrollBox.scrollTop >= scrollBox.scrollHeight - scrollBox.offsetHeight) {
+                            this.isDown = false;
+                        }
+                    } else {
+                        //上升
+                        this.scrollTop--;
+                        scrollBox.scrollTop = this.scrollTop;
+                        //到达顶部的话，就下降
+                        if (scrollBox.scrollTop == 0) {
+                            this.isDown = true;
+                        }
+                    }
+                } else {
+                    this.topScroll -= 1;
+                }
+            }, 1000 / 30);
         },
         // 监听鼠标
         moveEvent() {
@@ -392,6 +486,7 @@ export default {
                 clearInterval(this.timer1);
                 clearInterval(this.timer2);
                 clearInterval(this.timer3);
+                clearInterval(this.timer4);
                 this.playState = false;
             } else if (!this.playState) {
                 this.timerFun();
@@ -432,18 +527,55 @@ export default {
             this.time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ' ' + weekDay;
         },
         comeBakc() {
-            console.log(this.itemActive);
             if (this.itemActive == '项目') {
                 var project = document.querySelector('.project');
                 project.style.left = '-100%';
                 setTimeout(() => {
                     this.projectState = false;
                     setTimeout(() => {
-                        this.DOMCSS.left = '25%';
+                        this.DOMCSS.left = '22%';
                         this.itemActive = 'home';
                     }, 100);
                 }, 100);
             }
+        },
+        stopTimer4() {
+            clearInterval(this.timer4);
+        },
+        continueTimer4() {
+            // 文字滚动播放
+            if (this.playState) {
+                this.timer4 = setInterval(() => {
+                    var scrollBox = document.querySelector('.scrollBox');
+                    if (this.topScroll == 0) {
+                        // 操控滚动条
+                        if (this.isDown) {
+                            //下降
+                            this.scrollTop++;
+                            scrollBox.scrollTop = this.scrollTop;
+                            //如果滚动条超过100的话，就往上
+                            //可以修改这个条件，作为折返的前提
+                            if (scrollBox.scrollTop >= scrollBox.scrollHeight - scrollBox.offsetHeight) {
+                                this.isDown = false;
+                            }
+                        } else {
+                            //上升
+                            this.scrollTop--;
+                            scrollBox.scrollTop = this.scrollTop;
+                            //到达顶部的话，就下降
+                            if (scrollBox.scrollTop == 0) {
+                                this.isDown = true;
+                            }
+                        }
+                    } else {
+                        this.topScroll -= 1;
+                    }
+                }, 1000 / 30);
+            }
+        },
+        scrool() {
+            let scrolled = document.querySelector('.scrollBox').scrollTop;
+            this.scrollTop = scrolled;
         },
     },
 };
@@ -492,6 +624,8 @@ export default {
     transform: translate(-50%, -50%);
     /* 过渡效果 */
     transition: all 0.5s;
+    z-index: 1;
+    width: 33%;
 }
 
 .textItem {
@@ -609,11 +743,11 @@ export default {
 
 .languageTxt {
     font-size: 24px;
-    color: #b282ff;
+    color: #00ffff;
     font-family: fantasy, Monospace;
     font-style: italic;
     margin: 12px 0;
-    letter-spacing: 12px;
+    letter-spacing: 5px;
 }
 .languageBox {
     display: flex;
@@ -634,5 +768,59 @@ export default {
     width: 50%;
     line-height: 1;
     margin-bottom: 12px;
+}
+.commitItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+.commitmessage {
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.commitTxt {
+    font-size: 24px;
+    color: #82ff86;
+    font-family: fantasy, Monospace;
+    font-style: italic;
+    margin: 12px 0;
+    letter-spacing: 5px;
+}
+.commitBox {
+    height: 138px;
+    overflow: hidden;
+    position: relative;
+}
+.scrollBox {
+    position: absolute;
+    width: 99%;
+    bottom: 0;
+    box-sizing: border-box;
+}
+
+.scrollBox::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 5px;
+    /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+}
+
+.scrollBox::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #eaeaea;
+    border-radius: 10px;
+}
+
+.scrollBox::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #747474;
+    border-radius: 10px;
 }
 </style>
