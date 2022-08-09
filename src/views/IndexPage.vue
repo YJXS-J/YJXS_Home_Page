@@ -20,7 +20,10 @@
                         ></div>
                     </div>
                     <div class="languageBox">
-                        <div class="languageItem"></div>
+                        <div class="languageItem" v-for="(item, index) of proportionArr" :key="index">
+                            <div class="origin" :style="{ backgroundColor: item.color }"></div>
+                            {{ item.name }} {{ item.proportion }}%
+                        </div>
                     </div>
                 </div>
             </div>
@@ -149,43 +152,93 @@ export default {
         //         this.indexPngArr.push(item.src);
         //     }
         // });
-
-        axios({
-            url: 'https://api.github.com/repos/YJXS-J/YJXS_Home_Page/languages',
-            params: {},
-        }).then(data => {
-            var res = data.data;
+        // 语言颜色处理
+        function colorFUN(value) {
+            var color = '';
+            if (value == 'Vue') {
+                color = '#41b883';
+            }
+            if (value == 'JavaScript') {
+                color = '#f1e05a';
+            }
+            if (value == 'HTML') {
+                color = '#e34c26';
+            }
+            if (value == 'CSS') {
+                color = '#563d7c';
+            }
+            return color;
+        }
+        //    读取缓存，如果有则不再请求
+        if (localStorage.getItem('language')) {
+            var res = JSON.parse(localStorage.getItem('language'));
             var values = Object.values(res);
             var total = 0;
             values.forEach(item => {
                 total += item;
             });
-            // 语言颜色处理
-            function colorFUN(value) {
-                var color = '';
-                if (value == 'Vue') {
-                    color = '#2c3e50';
-                }
-                if (value == 'JavaScript') {
-                    color = '#f1e05a';
-                }
-                if (value == 'HTML') {
-                    color = '#e34c26';
-                }
-                if (value == 'CSS') {
-                    color = '#563d7c';
-                }
-                return color;
-            }
             for (const key in res) {
                 this.proportionArr.push({
                     name: key,
                     value: res[key],
+                    proportion: ((res[key] / total) * 100).toFixed(2) + '%',
                     color: colorFUN(key),
-                    width: 'calc(' + (res[key] / total) * 100 + '% - 1px)',
+                    width: 'calc(' + ((res[key] / total) * 100).toFixed(2) + '% - 1px)',
                 });
+                console.log(this.proportionArr);
             }
-        });
+        } else {
+            axios({
+                url: 'https://api.github.com/repos/YJXS-J/YJXS_Home_Page/languages',
+                params: {},
+            }).then(
+                data => {
+                    var res = data.data;
+                    // 数据保存到本地缓存中
+                    localStorage.setItem('language', JSON.stringify(res));
+                    var values = Object.values(res);
+                    var total = 0;
+                    values.forEach(item => {
+                        total += item;
+                    });
+                    for (const key in res) {
+                        this.proportionArr.push({
+                            name: key,
+                            value: res[key],
+                            proportion: ((res[key] / total) * 100).toFixed(2) + '%',
+                            color: colorFUN(key),
+                            width: 'calc(' + ((res[key] / total) * 100).toFixed(2) + '% - 1px)',
+                        });
+                    }
+                },
+                // eslint-disable-next-line no-unused-vars
+                err => {
+                    this.proportionArr = [
+                        {
+                            name: 'Vue',
+                            value: 30860,
+                            proportion: '89.33%',
+                            color: '#41b883',
+                            width: 'calc(89.33% - 1px)',
+                        },
+                        {
+                            name: 'JavaScript',
+                            value: 3094,
+                            proportion: '8.96%',
+                            color: '#f1e05a',
+                            width: 'calc(8.96% - 1px)',
+                        },
+                        {
+                            name: 'HTML',
+                            value: 591,
+                            proportion: '1.71%',
+                            color: '#e34c26',
+                            width: 'calc(1.71% - 1px)',
+                        },
+                    ];
+                }
+            );
+        }
 
         this.timerFun();
         // 获取页面高度
@@ -437,7 +490,6 @@ export default {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    letter-spacing: 12px;
     /* 过渡效果 */
     transition: all 0.5s;
 }
@@ -447,6 +499,7 @@ export default {
     color: #fff;
     font-family: fantasy, Monospace;
     font-style: italic;
+    letter-spacing: 12px;
 }
 
 .mainPng {
@@ -537,24 +590,49 @@ export default {
     transition: all 0.5s;
     cursor: pointer;
 }
+
 .proportion {
     width: 100%;
     height: 10px;
-    background-color: #0d1117;
+    /* background-color: #0d1117; */
     border-radius: 5px;
     overflow: hidden;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 12px 0;
 }
+
 .proportionItem {
     height: 100%;
 }
+
 .languageTxt {
     font-size: 24px;
     color: #b282ff;
     font-family: fantasy, Monospace;
     font-style: italic;
     margin: 12px 0;
+    letter-spacing: 12px;
+}
+.languageBox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+.origin {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+.languageItem {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    width: 50%;
+    line-height: 1;
+    margin-bottom: 12px;
 }
 </style>
