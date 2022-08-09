@@ -188,8 +188,8 @@ export default {
             return color;
         }
         // 读取缓存，如果有则不再请求（语言）
-        if (localStorage.getItem('language')) {
-            var res = JSON.parse(localStorage.getItem('language'));
+        if (sessionStorage.getItem('language')) {
+            var res = JSON.parse(sessionStorage.getItem('language'));
             var values = Object.values(res);
             var total = 0;
             values.forEach(item => {
@@ -212,7 +212,7 @@ export default {
                 data => {
                     var res = data.data;
                     // 数据保存到本地缓存中
-                    localStorage.setItem('language', JSON.stringify(res));
+                    sessionStorage.setItem('language', JSON.stringify(res));
                     var values = Object.values(res);
                     var total = 0;
                     values.forEach(item => {
@@ -257,9 +257,9 @@ export default {
             );
         }
         // 读取缓存，如果有则不再请求（提交记录）
-        if (localStorage.getItem('commits')) {
+        if (sessionStorage.getItem('commits')) {
             // eslint-disable-next-line no-redeclare
-            var res = JSON.parse(localStorage.getItem('commits'));
+            var res = JSON.parse(sessionStorage.getItem('commits'));
             for (let i = 0; i < res.length; i++) {
                 this.commitsArr.push(res[i].commit.committer);
                 this.commitsArr[i].message = res[i].commit.message;
@@ -272,7 +272,7 @@ export default {
                 data => {
                     var res = data.data;
                     // 数据保存到本地缓存中
-                    localStorage.setItem('commits', JSON.stringify(res));
+                    sessionStorage.setItem('commits', JSON.stringify(res));
                     // eslint-disable-next-line no-redeclare
                     var res = res;
                     for (let i = 0; i < res.length; i++) {
