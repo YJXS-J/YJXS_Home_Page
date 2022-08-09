@@ -233,6 +233,7 @@ body {
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
+    align-content: flex-start;
     overflow: hidden;
     overflow-y: auto;
 }
