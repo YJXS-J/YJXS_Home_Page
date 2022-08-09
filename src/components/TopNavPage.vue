@@ -35,8 +35,8 @@ export default {
                     src: '/project',
                 },
                 {
-                    name: '面试题',
-                    src: '/interview',
+                    name: '题库',
+                    src: '/questionBank',
                 },
             ],
         };

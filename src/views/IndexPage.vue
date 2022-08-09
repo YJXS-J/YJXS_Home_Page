@@ -103,7 +103,7 @@ export default {
                 },
                 {
                     img: require('../static/images/question.png'),
-                    txt: '面试题',
+                    txt: '题库',
                     src: 'https://github.com/YJXS-J',
                     target: '_self',
                 },
