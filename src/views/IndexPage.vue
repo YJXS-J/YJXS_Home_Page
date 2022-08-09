@@ -8,6 +8,21 @@
             <div class="text" :style="{ left: DOMCSS.left, opacity: DOMCSS.opacity }">
                 <span class="textItem">YJXS</span>
                 <span class="textItem">HomePage</span>
+                <!-- 语言 -->
+                <div class="language">
+                    <div class="languageTxt">Languages</div>
+                    <div class="proportion">
+                        <div
+                            class="proportionItem"
+                            v-for="(item, index) of proportionArr"
+                            :key="index"
+                            :style="{ backgroundColor: item.color, width: item.width }"
+                        ></div>
+                    </div>
+                    <div class="languageBox">
+                        <div class="languageItem"></div>
+                    </div>
+                </div>
             </div>
             <!-- 播放按钮 -->
             <div class="playBtn" @click="play()">
@@ -30,7 +45,6 @@
             <div class="time" :style="{ right: DOMCSS.right, opacity: DOMCSS.opacity }" @click="comeBakc()">
                 <span class="timeItem">{{ time }}</span>
             </div>
-
             <!-- 项目 -->
             <ProjectPage v-show="projectState" />
         </div>
@@ -55,6 +69,7 @@
 // import TopNav from '../components/TopNavPage.vue';
 import LoadingPage from '@/components/LoadingPage';
 import ProjectPage from '@/components/ProjectPage';
+import axios from 'axios';
 
 export default {
     components: {
@@ -124,6 +139,7 @@ export default {
             screenWidth: document.documentElement.clientWidth, //屏幕宽度
             projectState: false,
             itemActive: 'home',
+            proportionArr: [],
         };
     },
     created() {
@@ -133,6 +149,44 @@ export default {
         //         this.indexPngArr.push(item.src);
         //     }
         // });
+
+        axios({
+            url: 'https://api.github.com/repos/YJXS-J/YJXS_Home_Page/languages',
+            params: {},
+        }).then(data => {
+            var res = data.data;
+            var values = Object.values(res);
+            var total = 0;
+            values.forEach(item => {
+                total += item;
+            });
+            // 语言颜色处理
+            function colorFUN(value) {
+                var color = '';
+                if (value == 'Vue') {
+                    color = '#2c3e50';
+                }
+                if (value == 'JavaScript') {
+                    color = '#f1e05a';
+                }
+                if (value == 'HTML') {
+                    color = '#e34c26';
+                }
+                if (value == 'CSS') {
+                    color = '#563d7c';
+                }
+                return color;
+            }
+            for (const key in res) {
+                this.proportionArr.push({
+                    name: key,
+                    value: res[key],
+                    color: colorFUN(key),
+                    width: 'calc(' + (res[key] / total) * 100 + '% - 1px)',
+                });
+            }
+        });
+
         this.timerFun();
         // 获取页面高度
         var height = (document.documentElement.clientHeight - 88 * 2) / 2;
@@ -378,10 +432,6 @@ export default {
 }
 
 .text {
-    font-size: 72px;
-    color: #fff;
-    font-family: fantasy, Monospace;
-    font-style: italic;
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -390,6 +440,13 @@ export default {
     letter-spacing: 12px;
     /* 过渡效果 */
     transition: all 0.5s;
+}
+
+.textItem {
+    font-size: 72px;
+    color: #fff;
+    font-family: fantasy, Monospace;
+    font-style: italic;
 }
 
 .mainPng {
@@ -479,5 +536,25 @@ export default {
     letter-spacing: 3px;
     transition: all 0.5s;
     cursor: pointer;
+}
+.proportion {
+    width: 100%;
+    height: 10px;
+    background-color: #0d1117;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.proportionItem {
+    height: 100%;
+}
+.languageTxt {
+    font-size: 24px;
+    color: #b282ff;
+    font-family: fantasy, Monospace;
+    font-style: italic;
+    margin: 12px 0;
 }
 </style>
