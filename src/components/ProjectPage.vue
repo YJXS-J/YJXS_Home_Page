@@ -41,83 +41,28 @@
 </template>
 
 <script>
+// getCurrentInstance
+import { getCurrentInstance } from 'vue';
 export default {
-    data() {
+    setup() {
+        // 读取数据projectArr
+        const { $data } = getCurrentInstance().appContext.config.globalProperties;
+        var projectArr = $data.projectArr;
+        // 根据type值排序
+        projectArr.sort((a, b) => {
+            return a.type.localeCompare(b.type);
+        });
         return {
-            //
-            projectArr: [
-                {
-                    title: '时间选择器',
-                    type: 'JavaScript',
-                    functionTxt: '时间日历选择器',
-                    platform: 'PC & Mobile',
-                    introduction: 'yyyy-mm-dd||hh:mm:ss,滚轮选择时间，日历选择',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-                {
-                    title: '粤港澳大湾区气象监测预警预报中心',
-                    functionTxt: '官网',
-                    type: 'JavaScript',
-                    platform: 'PC',
-                    introduction: '粤港澳大湾区气象监测预警预报中心官网介绍',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-                {
-                    title: '天文日历',
-                    type: 'JavaScript',
-                    functionTxt: '时间日历选择器',
-                    platform: 'Mobile',
-                    introduction: '移动版日历，日期推算，干支计算',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-                {
-                    title: '抚州雷电预警',
-                    type: 'uni-app(Vue2)',
-                    functionTxt: '官网',
-                    platform: 'PC & Mobile',
-                    introduction: '抚州雷电预警信息查看，自适应设备',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-                {
-                    title: '深圳市国家气候观象台数字服务平台',
-                    type: 'JavaScript',
-                    functionTxt: '官网',
-                    platform: 'PC',
-                    introduction: '深圳市国家气候观象台数字服务平台数据查看，通过一个iframe标签来切换显示不同的页面',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-                {
-                    title: '深圳市大鹏新区南澳街道南隆社区气象监测预警',
-                    type: 'JavaScript',
-                    functionTxt: '官网',
-                    platform: 'PC',
-                    introduction: '深圳市大鹏新区南澳街道南隆社区气象监测预警信息查看，页面模块可全屏显示',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-                {
-                    title: '野行海钓',
-                    type: 'uni-app(Vue2)',
-                    functionTxt: '微信小程序',
-                    platform: 'Mobile',
-                    introduction: '自定义日历组件',
-                    show: true,
-                    transform: 'scale(1)',
-                    url: '',
-                },
-            ],
+            projectArr,
         };
+    },
+    data() {
+        return {};
+    },
+    mounted() {
+        var height3 = document.documentElement.clientHeight;
+        var projectBox = document.querySelector('.projectBox');
+        projectBox.style.height = height3 - 88 * 2 - 16 * 2 + 'px';
     },
     methods: {
         //
@@ -128,18 +73,6 @@ export default {
                 this.projectArr[index].show = !state;
             }, 500);
         },
-    },
-    mounted() {
-        //
-        var height3 = document.documentElement.clientHeight;
-        var projectBox = document.querySelector('.projectBox');
-        projectBox.style.height = height3 - 88 * 2 - 16 * 2 + 'px';
-    },
-    created() {
-        // 根据type值排序
-        this.projectArr.sort((a, b) => {
-            return a.type.localeCompare(b.type);
-        });
     },
 };
 </script>
