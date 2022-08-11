@@ -63,6 +63,8 @@
             </div>
             <!-- 项目 -->
             <ProjectPage v-show="projectState" />
+            <!-- 题库 -->
+            <QuestionBankPage v-show="questionBankState" />
         </div>
         <!-- 图片 -->
         <div class="mainPng" v-show="!LoadingPageShow">
@@ -85,6 +87,7 @@
 // import TopNav from '../components/TopNavPage.vue';
 import LoadingPage from '@/components/LoadingPage';
 import ProjectPage from '@/components/ProjectPage';
+import QuestionBankPage from '@/components/QuestionBankPage';
 import axios from 'axios';
 
 export default {
@@ -92,6 +95,7 @@ export default {
         // TopNav,
         LoadingPage,
         ProjectPage,
+        QuestionBankPage,
     },
     data() {
         return {
@@ -156,6 +160,7 @@ export default {
             LoadingPageShow: true,
             screenWidth: document.documentElement.clientWidth, //屏幕宽度
             projectState: false,
+            questionBankState: false,
             itemActive: 'home',
             proportionArr: [],
             commitsArr: [],
@@ -164,12 +169,6 @@ export default {
         };
     },
     created() {
-        // 图片接收
-        // JSON.parse(this.$route.params.imgSrcArr).forEach(item => {
-        //     if (item.name.slice(0, -1) == 'carousel') {
-        //         this.indexPngArr.push(item.src);
-        //     }
-        // });
         // 语言颜色处理
         function colorFUN(value) {
             var color = '';
@@ -505,19 +504,29 @@ export default {
                 window.open(src, target);
             } else {
                 this.DOMCSS.left = '-100%';
+                var project = document.querySelector('.project');
+                var questionBank = document.querySelector('.questionBank');
                 // 延迟执行
                 setTimeout(() => {
                     if (name == '项目') {
-                        var project = document.querySelector('.project');
                         this.projectState = true;
+                        questionBank.style.left = '-100%';
                         setTimeout(() => {
                             project.style.left = '16px';
+                            this.itemActive = name;
+                        }, 100);
+                    } else if (name == '题库') {
+                        this.questionBankState = true;
+                        project.style.left = '-100%';
+                        setTimeout(() => {
+                            questionBank.style.left = '16px';
                             this.itemActive = name;
                         }, 100);
                     }
                 }, 100);
             }
         },
+        // 获取时间
         getTime() {
             this.time = new Date().toLocaleString();
             var date = new Date();
@@ -532,6 +541,7 @@ export default {
             var weekDay = week[date.getDay()];
             this.time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ' ' + weekDay;
         },
+        // UTC时间转北京时间
         UTC_to_BJtime(utc_datetime) {
             // 转为正常的时间格式 年-月-日 时:分:秒
             var T_pos = utc_datetime.indexOf('T');
@@ -559,6 +569,7 @@ export default {
             var datetime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
             return datetime; // yyyy-mm-dd hh:mm:ss
         },
+        // 返回首页
         comeBakc() {
             if (this.itemActive == '项目') {
                 var project = document.querySelector('.project');
@@ -570,8 +581,19 @@ export default {
                         this.itemActive = 'home';
                     }, 100);
                 }, 100);
+            } else if (this.itemActive == '题库') {
+                var questionBank = document.querySelector('.questionBank');
+                questionBank.style.left = '-100%';
+                setTimeout(() => {
+                    this.questionBankState = false;
+                    setTimeout(() => {
+                        this.DOMCSS.left = '22%';
+                        this.itemActive = 'home';
+                    }, 100);
+                }, 100);
             }
         },
+        // 停止定时器4
         stopTimer4() {
             clearInterval(this.timer4);
         },
